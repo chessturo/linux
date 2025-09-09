@@ -13,3 +13,14 @@ void *rust_helper_this_cpu_ptr(void __percpu *ptr)
 {
 	return this_cpu_ptr(ptr);
 }
+__rust_helper
+void *rust_helper_per_cpu_ptr(void __percpu *ptr, unsigned int cpu)
+{
+	return per_cpu_ptr(ptr, cpu);
+}
+
+__rust_helper
+void rust_helper_on_each_cpu(smp_call_func_t func, void *info, int wait)
+{
+	on_each_cpu(func, info, wait);
+}
