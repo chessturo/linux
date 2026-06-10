@@ -104,8 +104,8 @@ pub mod opp;
 pub mod page;
 #[cfg(CONFIG_PCI)]
 pub mod pci;
-// Only x86_64 is supported by percpu for now
-#[cfg(CONFIG_X86_64)]
+// Only x86_64 and ARM64 are supported by percpu for now
+#[cfg(any(CONFIG_X86_64, CONFIG_ARM64))]
 pub mod percpu;
 pub mod pid_namespace;
 pub mod platform;
