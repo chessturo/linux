@@ -100,6 +100,13 @@
  */
 #include <../../drivers/base/base.h>
 
+#if defined(CONFIG_ARM64)
+// Lots of inline assembly needs to be able to vary its behavior based on
+// available instructions. See `asm_alternative!` in
+// `rust/kernel/arch/arm64.rs`.
+#include <asm/cpucaps.h>
+#endif
+
 #if defined(CONFIG_DRM_PANIC_SCREEN_QR_CODE)
 // Used by `#[export]` in `drivers/gpu/drm/drm_panic_qr.rs`.
 #include <drm/drm_panic.h>

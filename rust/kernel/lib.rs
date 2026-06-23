@@ -44,6 +44,7 @@ pub mod acpi;
 pub mod alloc;
 #[cfg(CONFIG_AUXILIARY_BUS)]
 pub mod auxiliary;
+pub mod arch;
 pub mod bitfield;
 pub mod bitmap;
 pub mod bits;

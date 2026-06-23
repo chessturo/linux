@@ -128,9 +128,9 @@ macro_rules! get_static_per_cpu {
 /// Declares an [`ExternStaticPerCpuSymbol`] corresponding to a per-CPU variable defined in C.
 #[macro_export]
 macro_rules! declare_extern_per_cpu {
-    ($id:ident: $ty:ty) => {
+    ($vis:vis $id:ident: $ty:ty) => {
         extern "C" {
-            static $id: ExternStaticPerCpuSymbol<$ty>;
+            $vis static $id: ExternStaticPerCpuSymbol<$ty>;
         }
     };
 }

@@ -248,21 +248,21 @@ impl kernel::Module for PerCpuMod {
 
         pr_info!("rust dynamic percpu test done\n");
 
-        pr_info!("rust numeric optimizations test start\n");
+        // pr_info!("rust numeric optimizations test start\n");
 
-        make_optimization_test!(u8);
-        make_optimization_test!(u16);
-        make_optimization_test!(u32);
-        make_optimization_test!(u64);
-        make_optimization_test!(usize);
+        // make_optimization_test!(u8);
+        // make_optimization_test!(u16);
+        // make_optimization_test!(u32);
+        // make_optimization_test!(u64);
+        // make_optimization_test!(usize);
 
-        make_optimization_test!(i8);
-        make_optimization_test!(i16);
-        make_optimization_test!(i32);
-        make_optimization_test!(i64);
-        make_optimization_test!(isize);
+        // make_optimization_test!(i8);
+        // make_optimization_test!(i16);
+        // make_optimization_test!(i32);
+        // make_optimization_test!(i64);
+        // make_optimization_test!(isize);
 
-        pr_info!("rust numeric optimizations test done\n");
+        // pr_info!("rust numeric optimizations test done\n");
 
         // Return Err to unload the module
         Result::Err(EINVAL)

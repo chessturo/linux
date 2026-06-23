@@ -39,6 +39,7 @@ macro_rules! impl_ops {
         impl PerCpuNumeric<'_, $ty> {
             /// Adds `rhs` to the per-CPU variable.
             #[inline]
+            #[cfg(CONFIG_X86_64)]
             pub fn add(&mut self, rhs: $ty) {
                 // SAFETY: `self.ptr.0` is a valid offset into the per-CPU area (i.e., valid as a
                 // pointer relative to the `gs` segment register) by the invariants of this type.
@@ -50,10 +51,17 @@ macro_rules! impl_ops {
                     );
                 }
             }
+            /// Adds `rhs` to the per-CPU variable.
+            #[inline]
+            #[cfg(CONFIG_ARM64)]
+            pub fn add(&mut self, rhs: $ty) {
+                todo!();
+            }
         }
         impl PerCpuNumeric<'_, $ty> {
             /// Subtracts `rhs` from the per-CPU variable.
             #[inline]
+            #[cfg(CONFIG_X86_64)]
             pub fn sub(&mut self, rhs: $ty) {
                 // SAFETY: `self.ptr.0` is a valid offset into the per-CPU area (i.e., valid as a
                 // pointer relative to the `gs` segment register) by the invariants of this type.
@@ -64,6 +72,12 @@ macro_rules! impl_ops {
                         val = in(reg) rhs,
                     );
                 }
+            }
+            /// Subtracts `rhs` from the per-CPU variable.
+            #[inline]
+            #[cfg(CONFIG_ARM64)]
+            pub fn sub(&mut self, rhs: $ty) {
+                todo!();
             }
         }
     };
@@ -95,6 +109,7 @@ macro_rules! impl_ops_byte {
         impl PerCpuNumeric<'_, $ty> {
             /// Adds `rhs` to the per-CPU variable.
             #[inline]
+            #[cfg(CONFIG_X86_64)]
             pub fn add(&mut self, rhs: $ty) {
                 // SAFETY: `self.ptr.0` is a valid offset into the per-CPU area (i.e., valid as a
                 // pointer relative to the `gs` segment register) by the invariants of this type.
@@ -106,10 +121,17 @@ macro_rules! impl_ops_byte {
                     );
                 }
             }
+            /// Adds `rhs` to the per-CPU variable.
+            #[inline]
+            #[cfg(CONFIG_ARM64)]
+            pub fn add(&mut self, rhs: $ty) {
+                todo!();
+            }
         }
         impl PerCpuNumeric<'_, $ty> {
             /// Subtracts `rhs` from the per-CPU variable.
             #[inline]
+            #[cfg(CONFIG_X86_64)]
             pub fn sub(&mut self, rhs: $ty) {
                 // SAFETY: `self.ptr.0` is a valid offset into the per-CPU area (i.e., valid as a
                 // pointer relative to the `gs` segment register) by the invariants of this type.
@@ -120,6 +142,12 @@ macro_rules! impl_ops_byte {
                         val = in(reg_byte) rhs,
                     );
                 }
+            }
+            /// Subtracts `rhs` from the per-CPU variable.
+            #[inline]
+            #[cfg(CONFIG_ARM64)]
+            pub fn sub(&mut self, rhs: $ty) {
+                todo!();
             }
         }
     };

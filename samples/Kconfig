@@ -322,6 +322,9 @@ config SAMPLE_HUNG_TASK
 	  Reading these files with multiple processes triggers hung task
 	  detection by holding locks for a long time (256 seconds).
 
+config SAMPLE_MISC
+	tristate "Misc"
+
 source "samples/rust/Kconfig"
 
 source "samples/damon/Kconfig"

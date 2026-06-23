@@ -21,6 +21,9 @@ use crate::{
     types::Opaque, //
 };
 
+#[cfg(CONFIG_ARM64)]
+use crate::asm_alternative;
+
 use core::{
     arch::asm,
     cell::{
@@ -122,27 +125,10 @@ impl<T> PerCpuPtr<T> {
     /// function, use of the returned pointer may cause a data race without some other
     /// synchronization mechanism. Buyer beware!
     pub fn get_ptr(&self) -> *mut MaybeUninit<T> {
-        if cfg!(CONFIG_X86_64) {
-            let this_cpu_off_pcpu = ExternStaticPerCpuSymbol::ptr(&raw const this_cpu_off);
-            let mut this_cpu_area: *mut c_void;
-            // SAFETY: gs + this_cpu_off_pcpu is guaranteed to be a valid pointer because `gs`
-            // points to the per-CPU area and this_cpu_off_pcpu is a valid per-CPU allocation.
-            unsafe {
-                asm!(
-                    "mov {out}, gs:[{off_val}]",
-                    off_val = in(reg) this_cpu_off_pcpu.0,
-                    out = out(reg) this_cpu_area,
-                )
-            };
-
-            // This_cpu_area + self.0 is guaranteed to be a valid pointer by the per-CPU subsystem
-            // and the invariant that self.0 is a valid offset into the per-CPU area.
-            (this_cpu_area).wrapping_add(self.0 as usize).cast()
-        } else if cfg!(CONFIG_ARM64) {
-
-        } else {
-            unreachable!("PerCpuPtr::get_ptr is not implemented for this architecture");
-        }
+        let this_cpu_area = arch_get_this_cpu_area();
+        // This_cpu_area + self.0 is guaranteed to be a valid pointer by the per-CPU subsystem
+        // and the invariant that self.0 is a valid offset into the per-CPU area.
+        (this_cpu_area).wrapping_add(self.0 as usize).cast()
     }
 
     /// Get a [`*mut MaybeUninit<T>`](MaybeUninit) to the per-CPU variable on the CPU represented
@@ -161,6 +147,36 @@ impl<T> PerCpuPtr<T> {
         // the act of producing the pointer is safe.
         unsafe { bindings::per_cpu_ptr(self.0.cast(), cpu.as_u32()) }.cast()
     }
+}
+
+#[cfg(CONFIG_X86_64)]
+fn arch_get_this_cpu_area() -> *mut c_void {
+    let mut this_cpu_area: *mut c_void;
+    let this_cpu_off_pcpu = ExternStaticPerCpuSymbol::ptr(&raw const crate::arch::x86_64::this_cpu_off);
+    // SAFETY: gs + this_cpu_off_pcpu is guaranteed to be a valid pointer because `gs`
+    // points to the per-CPU area and this_cpu_off_pcpu is a valid per-CPU allocation.
+    unsafe {
+        asm!(
+            "mov {out}, gs:[{off_val}]",
+            off_val = in(reg) this_cpu_off_pcpu.0,
+            out = out(reg) this_cpu_area,
+        )
+    };
+    return this_cpu_area;
+}
+
+#[cfg(CONFIG_ARM64)]
+fn arch_get_this_cpu_area() -> *mut c_void {
+    let mut this_cpu_area: *mut c_void;
+    unsafe {
+        asm_alternative!(
+            "mrs {out}, tpidr_el1",
+            "mrs {out}, tpidr_el2",
+            bindings::ARM64_HAS_VIRT_HOST_EXTN,
+            out = out(reg) this_cpu_area,
+        )
+    }
+    return this_cpu_area;
 }
 
 // SAFETY: Sending a [`PerCpuPtr<T>`] to another thread is safe because as soon as it's sent, the
@@ -284,5 +300,3 @@ impl<'a, T> CheckedPerCpuToken<'a, T> {
         func(unsafe { self.ptr.get_ref().assume_init_ref() })
     }
 }
-
-declare_extern_per_cpu!(this_cpu_off: *mut c_void);
